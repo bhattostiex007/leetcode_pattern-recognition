@@ -1,6 +1,27 @@
+# Environment variables — NEVER commit these
+.env
+.env.*
+
+# Python virtual environment
 venv/
+env/
 __pycache__/
 *.pyc
-.env
-.pytest_cache/
+*.pyo
+*.pyd
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE files
+.vscode/
+.idea/
 .DS_Store
+
+# Logs
+*.log
+
+# Tests
+.pytest_cache/
