@@ -11,10 +11,18 @@ st.set_page_config(
     page_title="LeetCode Pattern Detector",
     page_icon="🔍",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:5000")
+
+# ─────────────────────────────────────────────
+# Session State Init
+# ─────────────────────────────────────────────
+if "history" not in st.session_state:
+    st.session_state.history = []
+if "reload_problem" not in st.session_state:
+    st.session_state.reload_problem = None
 
 # ─────────────────────────────────────────────
 # Custom CSS
@@ -201,6 +209,54 @@ st.markdown("""
 
 
 # ─────────────────────────────────────────────
+# Sidebar: Session History
+# ─────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("""
+    <style>
+        section[data-testid="stSidebar"] { background: #141414; border-right: 1px solid #2a2a2a; }
+        .hist-title { font-family: 'Times New Roman', serif; font-size: 1.3rem; font-weight: 700;
+            color: #ffa116; margin-bottom: 0.3rem; letter-spacing: 0.05em; }
+        .hist-entry { background: #1f1f1f; border: 1px solid #2e2e2e; border-radius: 8px;
+            padding: 0.6rem 0.8rem; margin-bottom: 0.6rem; cursor: pointer;
+            transition: border-color 0.2s; }
+        .hist-entry:hover { border-color: #ffa116; }
+        .hist-problem { color: #eff1f6; font-size: 0.78rem; line-height: 1.4;
+            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; margin-bottom: 0.35rem; }
+        .hist-pattern-tag { display:inline-block; background:#ffa116; color:#000;
+            border-radius:4px; padding:1px 7px; font-size:0.7rem; font-weight:600;
+            margin-right:3px; margin-bottom:2px; }
+        .hist-time { color:#555; font-size:0.68rem; margin-top:0.3rem; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="hist-title">📋 History</div>', unsafe_allow_html=True)
+
+    if not st.session_state.history:
+        st.markdown('<p style="color:#555;font-size:0.82rem;margin-top:0.5rem;">No history yet.<br>Detect a pattern to start tracking!</p>', unsafe_allow_html=True)
+    else:
+        if st.button("🗑 Clear All", use_container_width=True, key="clear_history"):
+            st.session_state.history = []
+            st.rerun()
+
+        for idx, entry in enumerate(reversed(st.session_state.history)):
+            real_idx = len(st.session_state.history) - 1 - idx
+            pattern_tags = "".join(f'<span class="hist-pattern-tag">{p}</span>' for p in entry["patterns"])
+            short_problem = entry["problem"][:120] + "..." if len(entry["problem"]) > 120 else entry["problem"]
+            st.markdown(f"""
+            <div class="hist-entry">
+                <div class="hist-problem">{short_problem}</div>
+                <div>{pattern_tags}</div>
+                <div class="hist-time">⏱ {entry['time_complexity']} &nbsp;|&nbsp; 💾 {entry['space_complexity']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("↩ Reload", key=f"reload_{real_idx}", use_container_width=True):
+                st.session_state.reload_problem = entry["problem"]
+                st.rerun()
+
+
+# ─────────────────────────────────────────────
 # Header
 # ─────────────────────────────────────────────
 SVG_LOGO = """
@@ -267,6 +323,11 @@ with left_col:
     if "problem_text" not in st.session_state:
         st.session_state.problem_text = ""
 
+    # If user clicked Reload from history, inject the problem text
+    if st.session_state.reload_problem is not None:
+        st.session_state.problem_text = st.session_state.reload_problem
+        st.session_state.reload_problem = None
+
     def on_example_change():
         ex = st.session_state.example_select
         if ex != "— custom input —":
@@ -321,6 +382,17 @@ with right_col:
                         else:
                             time_comp = data.get("time_complexity", "Unknown")
                             space_comp = data.get("space_complexity", "Unknown")
+
+                            # Save to session history
+                            from datetime import datetime
+                            pattern_names = [p["pattern"] for p in patterns]
+                            st.session_state.history.append({
+                                "problem": problem_input,
+                                "patterns": pattern_names,
+                                "time_complexity": time_comp,
+                                "space_complexity": space_comp,
+                                "timestamp": datetime.now().strftime("%H:%M:%S")
+                            })
                             
                             st.markdown(f"""
                             <div style="display:flex;gap:1rem;margin-bottom:1rem;">
