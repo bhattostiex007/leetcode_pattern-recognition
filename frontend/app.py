@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+from streamlit_ace import st_ace
 
 import os
 
@@ -346,9 +347,18 @@ with right_col:
                                 """
                                 st.markdown(html_content, unsafe_allow_html=True)
 
-                                with st.expander(f"View {language} Template — {p['pattern']}"):
-                                    lang_map = {"C++": "cpp", "Python": "python", "Java": "java"}
-                                    st.code(p["template"], language=lang_map.get(language, "cpp"))
+                                with st.expander(f"Interactive Editor: {language} Template — {p['pattern']}"):
+                                    lang_map = {"C++": "c_cpp", "Python": "python", "Java": "java"}
+                                    st.markdown(f"**Practice your solution for {p['pattern']} below:**")
+                                    st_ace(
+                                        value=p["template"],
+                                        language=lang_map.get(language, "c_cpp"),
+                                        theme="twilight",
+                                        font_size=14,
+                                        tab_size=4,
+                                        height=300,
+                                        key=f"ace_editor_{i}"
+                                    )
 
                     else:
                         st.error(f"Backend error {response.status_code}: {response.text}")
