@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from streamlit_ace import st_ace
+import streamlit.components.v1 as components
 
 import os
 
@@ -208,123 +209,116 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# Living Background: Particle Network + Orbs
+# Living Background: Particle Network (via components.html)
 # ─────────────────────────────────────────────
-st.markdown("""
-<canvas id="codepath-particles" style="
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    z-index: 0;
-    pointer-events: none;
-"></canvas>
-
-<!-- Floating ambient orbs -->
-<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;overflow:hidden;">
-    <div style="
-        position:absolute; width:420px; height:420px; border-radius:50%;
-        background: radial-gradient(circle, rgba(255,161,22,0.07) 0%, transparent 70%);
-        top: -80px; left: -100px;
-        animation: orbFloat1 18s ease-in-out infinite alternate;
-    "></div>
-    <div style="
-        position:absolute; width:320px; height:320px; border-radius:50%;
-        background: radial-gradient(circle, rgba(255,161,22,0.05) 0%, transparent 70%);
-        bottom: 5%; right: 2%;
-        animation: orbFloat2 22s ease-in-out infinite alternate;
-    "></div>
-    <div style="
-        position:absolute; width:200px; height:200px; border-radius:50%;
-        background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
-        top: 45%; left: 55%;
-        animation: orbFloat3 14s ease-in-out infinite alternate;
-    "></div>
-</div>
-
-<style>
-@keyframes orbFloat1 {
-    0%   { transform: translate(0px, 0px) scale(1); }
-    100% { transform: translate(60px, 80px) scale(1.15); }
-}
-@keyframes orbFloat2 {
-    0%   { transform: translate(0px, 0px) scale(1); }
-    100% { transform: translate(-50px, -60px) scale(1.1); }
-}
-@keyframes orbFloat3 {
-    0%   { transform: translate(0px, 0px) scale(1); }
-    100% { transform: translate(30px, -40px) scale(0.9); }
-}
-</style>
-
+components.html("""
 <script>
 (function() {
-    const canvas = document.getElementById('codepath-particles');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const doc = window.parent.document;
 
-    let W = window.innerWidth, H = window.innerHeight;
+    // Remove any previously injected elements
+    ['cp-canvas', 'cp-orbs', 'cp-orb-style'].forEach(id => {
+        const el = doc.getElementById(id);
+        if (el) el.remove();
+    });
+
+    // --- Inject orb style ---
+    const style = doc.createElement('style');
+    style.id = 'cp-orb-style';
+    style.textContent = `
+        @keyframes orbFloat1 {
+            0%   { transform: translate(0,0) scale(1); }
+            100% { transform: translate(60px,80px) scale(1.15); }
+        }
+        @keyframes orbFloat2 {
+            0%   { transform: translate(0,0) scale(1); }
+            100% { transform: translate(-50px,-60px) scale(1.1); }
+        }
+        @keyframes orbFloat3 {
+            0%   { transform: translate(0,0) scale(1); }
+            100% { transform: translate(30px,-40px) scale(0.9); }
+        }
+    `;
+    doc.head.appendChild(style);
+
+    // --- Inject floating orbs ---
+    const orbs = doc.createElement('div');
+    orbs.id = 'cp-orbs';
+    orbs.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;overflow:hidden;';
+    orbs.innerHTML = `
+        <div style="position:absolute;width:500px;height:500px;border-radius:50%;
+            background:radial-gradient(circle,rgba(255,161,22,0.09) 0%,transparent 70%);
+            top:-100px;left:-120px;animation:orbFloat1 18s ease-in-out infinite alternate;"></div>
+        <div style="position:absolute;width:380px;height:380px;border-radius:50%;
+            background:radial-gradient(circle,rgba(255,161,22,0.06) 0%,transparent 70%);
+            bottom:2%;right:0%;animation:orbFloat2 22s ease-in-out infinite alternate;"></div>
+        <div style="position:absolute;width:250px;height:250px;border-radius:50%;
+            background:radial-gradient(circle,rgba(255,255,255,0.04) 0%,transparent 70%);
+            top:42%;left:52%;animation:orbFloat3 14s ease-in-out infinite alternate;"></div>
+    `;
+    doc.body.appendChild(orbs);
+
+    // --- Inject canvas ---
+    const canvas = doc.createElement('canvas');
+    canvas.id = 'cp-canvas';
+    canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;';
+    doc.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let W = window.parent.innerWidth;
+    let H = window.parent.innerHeight;
     canvas.width = W; canvas.height = H;
 
-    window.addEventListener('resize', () => {
-        W = window.innerWidth; H = window.innerHeight;
+    window.parent.addEventListener('resize', () => {
+        W = window.parent.innerWidth;
+        H = window.parent.innerHeight;
         canvas.width = W; canvas.height = H;
     });
 
-    const PARTICLE_COUNT = 70;
-    const MAX_DIST = 130;
-    const ORANGE = 'rgba(255, 161, 22,';
-    const WHITE  = 'rgba(255, 255, 255,';
+    const N = 75;
+    const MAX_D = 140;
+    const ORANGE = 'rgba(255,161,22,';
+    const WHITE  = 'rgba(220,220,255,';
 
-    const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
-        r: Math.random() * 1.8 + 0.8,
-        color: Math.random() > 0.7 ? ORANGE : WHITE,
+    const pts = Array.from({length: N}, () => ({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 1.8 + 0.7,
+        col: Math.random() > 0.65 ? ORANGE : WHITE
     }));
 
-    function draw() {
+    function frame() {
         ctx.clearRect(0, 0, W, H);
-
-        // Draw connections
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < MAX_DIST) {
-                    const alpha = (1 - dist / MAX_DIST) * 0.25;
-                    ctx.strokeStyle = ORANGE + alpha + ')';
-                    ctx.lineWidth = 0.6;
+        for (let i = 0; i < pts.length; i++) {
+            for (let j = i + 1; j < pts.length; j++) {
+                const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+                const d = Math.sqrt(dx*dx + dy*dy);
+                if (d < MAX_D) {
+                    ctx.strokeStyle = ORANGE + (1 - d/MAX_D) * 0.22 + ')';
+                    ctx.lineWidth = 0.5;
                     ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.moveTo(pts[i].x, pts[i].y);
+                    ctx.lineTo(pts[j].x, pts[j].y);
                     ctx.stroke();
                 }
             }
         }
-
-        // Draw dots
-        particles.forEach(p => {
+        pts.forEach(p => {
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = p.color + '0.55)';
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fillStyle = p.col + '0.6)';
             ctx.fill();
-
-            // Move
-            p.x += p.vx;
-            p.y += p.vy;
+            p.x += p.vx; p.y += p.vy;
             if (p.x < 0 || p.x > W) p.vx *= -1;
             if (p.y < 0 || p.y > H) p.vy *= -1;
         });
-
-        requestAnimationFrame(draw);
+        requestAnimationFrame(frame);
     }
-    draw();
+    frame();
 })();
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
 
 
 # ─────────────────────────────────────────────
