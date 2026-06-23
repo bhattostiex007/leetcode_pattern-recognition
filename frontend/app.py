@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="LeetCode Pattern Detector",
     page_icon="🔍",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:5000")
@@ -208,53 +208,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────
-# Sidebar: Session History
-# ─────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("""
-    <style>
-        section[data-testid="stSidebar"] { background: #141414; border-right: 1px solid #2a2a2a; }
-        .hist-title { font-family: 'Times New Roman', serif; font-size: 1.3rem; font-weight: 700;
-            color: #ffa116; margin-bottom: 0.3rem; letter-spacing: 0.05em; }
-        .hist-entry { background: #1f1f1f; border: 1px solid #2e2e2e; border-radius: 8px;
-            padding: 0.6rem 0.8rem; margin-bottom: 0.6rem; cursor: pointer;
-            transition: border-color 0.2s; }
-        .hist-entry:hover { border-color: #ffa116; }
-        .hist-problem { color: #eff1f6; font-size: 0.78rem; line-height: 1.4;
-            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical; margin-bottom: 0.35rem; }
-        .hist-pattern-tag { display:inline-block; background:#ffa116; color:#000;
-            border-radius:4px; padding:1px 7px; font-size:0.7rem; font-weight:600;
-            margin-right:3px; margin-bottom:2px; }
-        .hist-time { color:#555; font-size:0.68rem; margin-top:0.3rem; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="hist-title">📋 History</div>', unsafe_allow_html=True)
-
-    if not st.session_state.history:
-        st.markdown('<p style="color:#555;font-size:0.82rem;margin-top:0.5rem;">No history yet.<br>Detect a pattern to start tracking!</p>', unsafe_allow_html=True)
-    else:
-        if st.button("🗑 Clear All", use_container_width=True, key="clear_history"):
-            st.session_state.history = []
-            st.rerun()
-
-        for idx, entry in enumerate(reversed(st.session_state.history)):
-            real_idx = len(st.session_state.history) - 1 - idx
-            pattern_tags = "".join(f'<span class="hist-pattern-tag">{p}</span>' for p in entry["patterns"])
-            short_problem = entry["problem"][:120] + "..." if len(entry["problem"]) > 120 else entry["problem"]
-            st.markdown(f"""
-            <div class="hist-entry">
-                <div class="hist-problem">{short_problem}</div>
-                <div>{pattern_tags}</div>
-                <div class="hist-time">⏱ {entry['time_complexity']} &nbsp;|&nbsp; 💾 {entry['space_complexity']}</div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("↩ Reload", key=f"reload_{real_idx}", use_container_width=True):
-                st.session_state.reload_problem = entry["problem"]
-                st.rerun()
-
 
 # ─────────────────────────────────────────────
 # Header
@@ -296,6 +249,86 @@ with col_status:
         st.markdown('<span class="status-err">Backend offline — run: python backend/app.py</span>', unsafe_allow_html=True)
 
 st.markdown("---")
+
+# ─────────────────────────────────────────────
+# Session History Expander
+# ─────────────────────────────────────────────
+st.markdown("""
+<style>
+    /* Style the expander header */
+    div[data-testid="stExpander"] > details > summary {
+        background: linear-gradient(90deg, #1f1f1f 0%, #282828 100%);
+        border: 1px solid #3a3a3a;
+        border-radius: 10px;
+        padding: 0.7rem 1.2rem;
+        color: #ffa116;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    div[data-testid="stExpander"] > details > summary:hover {
+        border-color: #ffa116;
+        box-shadow: 0 0 12px rgba(255,161,22,0.18);
+    }
+    div[data-testid="stExpander"] > details > summary > span {
+        color: #ffa116;
+    }
+    div[data-testid="stExpander"] > details[open] > summary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-color: #ffa116;
+    }
+    div[data-testid="stExpander"] > details > div {
+        background: #1a1a1a;
+        border: 1px solid #ffa116;
+        border-top: none;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        padding: 1rem 1.2rem;
+    }
+    .hist-entry { background: #222222; border: 1px solid #2e2e2e; border-radius: 8px;
+        padding: 0.65rem 0.9rem; margin-bottom: 0.6rem;
+        transition: border-color 0.2s, box-shadow 0.2s; }
+    .hist-entry:hover { border-color: #ffa116; box-shadow: 0 0 8px rgba(255,161,22,0.12); }
+    .hist-problem { color: #eff1f6; font-size: 0.8rem; line-height: 1.45;
+        overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical; margin-bottom: 0.35rem; }
+    .hist-pattern-tag { display:inline-block; background:#ffa116; color:#000;
+        border-radius:4px; padding:1px 8px; font-size:0.7rem; font-weight:700;
+        margin-right:3px; margin-bottom:3px; }
+    .hist-meta { color:#666; font-size:0.7rem; margin-top:0.35rem; }
+</style>
+""", unsafe_allow_html=True)
+
+history_label = f"📂 Watch Your History  ({len(st.session_state.history)} entr{'y' if len(st.session_state.history) == 1 else 'ies'})"
+with st.expander(history_label):
+    if not st.session_state.history:
+        st.markdown('<p style="color:#666;font-size:0.85rem;text-align:center;padding:1rem 0;">No history yet — detect a pattern to start tracking! 🚀</p>', unsafe_allow_html=True)
+    else:
+        col_hist_clear, _ = st.columns([1, 4])
+        with col_hist_clear:
+            if st.button("🗑️ Clear History", key="clear_history"):
+                st.session_state.history = []
+                st.rerun()
+
+        cols = st.columns(3)
+        for idx, entry in enumerate(reversed(st.session_state.history)):
+            real_idx = len(st.session_state.history) - 1 - idx
+            col = cols[idx % 3]
+            with col:
+                pattern_tags = "".join(f'<span class="hist-pattern-tag">{p}</span>' for p in entry["patterns"])
+                short_problem = entry["problem"][:100] + "..." if len(entry["problem"]) > 100 else entry["problem"]
+                st.markdown(f"""
+                <div class="hist-entry">
+                    <div class="hist-problem">{short_problem}</div>
+                    <div style="margin:0.25rem 0">{pattern_tags}</div>
+                    <div class="hist-meta">⏱️ {entry['time_complexity']} &nbsp;•&nbsp; 💾 {entry['space_complexity']} &nbsp;•&nbsp; {entry['timestamp']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("↩ Reload Problem", key=f"reload_{real_idx}", use_container_width=True):
+                    st.session_state.reload_problem = entry["problem"]
+                    st.rerun()
 
 
 # ─────────────────────────────────────────────
