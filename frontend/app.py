@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 
+import os
+
 # ─────────────────────────────────────────────
 # Page Config
 # ─────────────────────────────────────────────
@@ -11,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-BACKEND_URL = "http://127.0.0.1:5000"
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:5000")
 
 # ─────────────────────────────────────────────
 # Custom CSS

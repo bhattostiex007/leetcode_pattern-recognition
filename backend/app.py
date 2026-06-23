@@ -1,8 +1,13 @@
+import os
 import json
 import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from dotenv import load_dotenv
 from templates import TEMPLATES, PATTERN_NAMES
+from groq import Groq
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -36,22 +41,28 @@ def detect_patterns_with_llm(problem_text: str):
     """
     
     try:
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": "llama3",
-                "prompt": prompt,
-                "stream": False
-            },
-            timeout=30
+        # Initialize Groq client
+        api_key = os.environ.get("GROQ_API_KEY")
+        if not api_key:
+            print("Error: GROQ_API_KEY environment variable not set.")
+            return {"patterns": []}
+            
+        client = Groq(api_key=api_key)
+        
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama3-8b-8192",
+            temperature=0,
+            max_tokens=1024,
+            response_format={"type": "json_object"}
         )
         
-        if response.status_code != 200:
-            print(f"Ollama API Error: {response.text}")
-            return []
-            
-        data = response.json()
-        text = data.get("response", "").strip()
+        text = chat_completion.choices[0].message.content.strip()
         
         # Robust JSON extraction: find the first '{' and last '}'
         start_idx = text.find('{')
@@ -77,11 +88,8 @@ def detect_patterns_with_llm(problem_text: str):
             "time_complexity": llm_result.get("time_complexity", "Unknown"),
             "space_complexity": llm_result.get("space_complexity", "Unknown")
         }
-    except requests.ConnectionError:
-        print("Error: Could not connect to Ollama on localhost:11434. Make sure it is running.")
-        return {"patterns": []}
     except Exception as e:
-        print(f"Error calling LLM: {e}")
+        print(f"Error calling Groq API: {e}")
         return {"patterns": []}
 
 # ─────────────────────────────────────────────
