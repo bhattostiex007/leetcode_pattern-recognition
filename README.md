@@ -12,7 +12,7 @@ CODEPATH is an AI-powered web application that analyzes algorithm problem descri
 
 You paste a problem statement (or pick from built-in examples), click **Detect Pattern**, and the app:
 
-- **Identifies the algorithmic pattern(s)** — up to 3 best-matching patterns ranked by relevance
+- **Identifies the algorithmic patterns** — up to 3 best-matching patterns ranked by relevance
 - **Predicts Big-O Complexity** — both time and space complexity
 - **Generates code templates** — syntax-highlighted, language-specific boilerplate in C++, Python, or Java
 - **Provides an interactive code editor** — edit and practice directly in the browser (no setup needed)
@@ -34,21 +34,21 @@ You paste a problem statement (or pick from built-in examples), click **Detect P
 
 ## Features
 
-### 🧠 AI Pattern Detection
+###  AI Pattern Detection
 Powered by **Llama 3.1** (via Groq API), the AI reads the problem description and returns a structured JSON response classifying it into the most relevant patterns with complexity analysis.
 
-### ⏱️ Big-O Complexity Predictor
+###  Big-O Complexity Predictor
 Alongside each detected pattern, the app predicts:
 - **Time Complexity** (e.g., `O(N log N)`)
 - **Space Complexity** (e.g., `O(N)`)
 
-### 💻 Interactive Code Editor
+###  Interactive Code Editor
 Instead of just showing static code, CODEPATH embeds a fully interactive **Ace Code Editor** with:
 - Syntax highlighting for C++, Python, and Java
 - Dark `twilight` theme matching the app's aesthetic
 - Tab support and standard editor shortcuts
 
-### 📂 Session History Tracker
+###  Session History Tracker
 Every successful detection is automatically saved in the "Watch Your History" expander panel. Each entry shows:
 - A preview of the problem
 - Detected pattern tags
