@@ -416,99 +416,146 @@ return order;
 }
 
 # ─────────────────────────────────────────────
-# Keyword → Pattern Mapping
+# Keyword Mapping: each entry is (keyword, weight)
+# Higher weight = stronger signal for that pattern.
 # ─────────────────────────────────────────────
 PATTERN_KEYWORDS = {
+    # Array/string problems: two pointers meeting in the middle
+    # STRONG: problem-specific phrases; WEAK: generic terms shared with binary search
     "Two Pointers": [
-        "two pointer", "opposite end", "pair sum", "sorted array",
-        "remove duplicate", "container with most water", "three sum",
-        "trapping rain", "two sum ii", "valid palindrome", "move zeroes"
+        ("two pointer", 5), ("two sum ii", 5), ("container with most water", 5),
+        ("three sum", 5), ("trapping rain water", 5), ("valid palindrome", 5),
+        ("move zeroes", 5), ("remove duplicates from sorted", 5),
+        ("pair sum", 4), ("opposite end", 4), ("left.*right", 3),
+        ("sorted array", 2),  # weak: also in binary search
     ],
+    # Contiguous sub-sequence: expand/shrink a window over array or string
     "Sliding Window": [
-        "subarray", "substring", "window", "consecutive", "contiguous",
-        "longest substring", "minimum window", "max sum subarray", "sliding",
-        "at most k", "exactly k", "k distinct", "permutation in string"
+        ("longest substring without", 5), ("minimum window substring", 5),
+        ("sliding window", 5), ("at most k distinct", 5), ("permutation in string", 5),
+        ("longest substring", 4), ("minimum window", 4), ("k distinct", 4),
+        ("substring", 3), ("subarray", 2), ("window", 2),
+        ("contiguous", 2), ("consecutive", 2),
     ],
+    # Sorted/monotonic domain: halve the search space each step
     "Binary Search": [
-        "sorted", "binary search", "log n", "search in", "find position",
-        "rotated", "peak element", "first bad version", "search insert",
-        "koko", "split array", "minimum in rotated", "capacity to ship"
+        ("binary search", 5), ("search in rotated", 5), ("first bad version", 5),
+        ("koko eating bananas", 5), ("capacity to ship", 5), ("peak element", 5),
+        ("minimum in rotated sorted", 5), ("search insert position", 5),
+        ("find position", 4), ("find index", 4), ("return the index", 4),
+        ("sorted array", 3), ("sorted", 2),
     ],
+    # Graph/grid shortest-path via queue, level-by-level
     "BFS": [
-        "shortest path", "level order", "bfs", "breadth first", "word ladder",
-        "01 matrix", "walls and gates", "rotten orange", "jump game ii",
-        "minimum step", "nearest", "spread", "infection", "minimum distance"
+        ("level order", 5), ("word ladder", 5), ("rotten oranges", 5),
+        ("01 matrix", 5), ("walls and gates", 5), ("breadth first", 5),
+        ("maximum width", 4), ("minimum steps", 4), ("minimum distance", 4),
+        ("shortest path", 4), ("level by level", 4), ("each level", 4),
+        ("width of", 3), ("width among", 3), ("bfs", 3),
     ],
+    # Graph/grid/tree deep exploration via recursion or stack
     "DFS": [
-        "dfs", "depth first", "all path", "connected component", "island",
-        "flood fill", "number of island", "path exist", "clone graph",
-        "traversal", "preorder", "inorder", "postorder", "tree path"
+        ("number of islands", 5), ("flood fill", 5), ("clone graph", 5),
+        ("all paths", 5), ("path sum", 5), ("dfs", 5), ("depth first", 5),
+        ("connected components", 4), ("number of connected", 4),
+        ("island", 3), ("flood", 3), ("explore all", 3),
     ],
+    # Optimal substructure + overlapping subproblems
     "Dynamic Programming": [
-        "maximum", "minimum", "optimal", "ways to", "count the number",
-        "longest common", "edit distance", "knapsack", "coin change",
-        "fibonacci", "climbing stair", "house robber", "longest increasing",
-        "palindrome subsequence", "unique path", "dp", "memoization",
-        "subproblem", "overlapping", "decode ways", "partition"
+        ("coin change", 5), ("longest common subsequence", 5), ("edit distance", 5),
+        ("knapsack", 5), ("climbing stairs", 5), ("house robber", 5),
+        ("longest increasing subsequence", 5), ("unique paths", 5),
+        ("decode ways", 5), ("palindrome subsequence", 5),
+        ("minimum number of coins", 4), ("minimum coins", 4),
+        ("number of ways", 4), ("count ways", 4), ("minimum cost", 4),
+        ("maximum profit", 4), ("memoization", 4), ("dp", 3),
+        ("overlapping subproblem", 4), ("optimal substructure", 4),
     ],
+    # Enumerate all combinations/permutations, prune invalid branches
     "Backtracking": [
-        "all combination", "all permutation", "generate all", "subset",
-        "combination sum", "letter combination", "n-queen", "sudoku",
-        "word search", "palindrome partition", "restore ip", "power set"
+        ("combination sum", 5), ("all permutations", 5), ("all combinations", 5),
+        ("n-queens", 5), ("sudoku solver", 5), ("word search", 5),
+        ("generate all", 4), ("palindrome partitioning", 4),
+        ("restore ip addresses", 4), ("letter combinations", 4),
+        ("power set", 4), ("all subsets", 4), ("subset", 3),
     ],
+    # Dynamic access to min/max in O(log n)
     "Heap / Priority Queue": [
-        "k largest", "k smallest", "k-th", "top k", "merge k sorted",
-        "priority", "heap", "meeting room", "task scheduler",
-        "find median", "sliding window maximum", "kth largest"
+        ("kth largest", 5), ("k largest", 5), ("k smallest", 5),
+        ("merge k sorted", 5), ("find median", 5), ("task scheduler", 5),
+        ("top k frequent", 5), ("sliding window maximum", 5),
+        ("k-th largest", 5), ("priority queue", 4), ("top k", 4),
+        ("heap", 4), ("meeting rooms", 4),
     ],
+    # O(1) lookup; group/count/find complement
     "Hash Map": [
-        "frequency", "count", "anagram", "duplicate", "two sum",
-        "group anagram", "subarray sum equal", "longest consecutive",
-        "hash", "lookup", "occurrence", "unique", "complement"
+        ("two sum", 5), ("group anagrams", 5), ("longest consecutive sequence", 5),
+        ("subarray sum equals", 5), ("top k frequent elements", 4),
+        ("find duplicate", 3), ("count occurrences", 3), ("frequency", 3),
+        ("anagram", 4), ("complement", 3), ("indices of the two", 4),
+        ("add up to target", 4), ("sum to target", 4),
     ],
+    # Local optimal choices; no backtracking
     "Greedy": [
-        "greedy", "locally optimal", "activity selection", "jump game",
-        "gas station", "assign cookie", "minimum arrow", "non-overlapping",
-        "interval", "meeting", "schedule", "minimum platform", "maximize profit"
+        ("jump game", 5), ("gas station", 5), ("minimum number of arrows", 5),
+        ("non-overlapping intervals", 5), ("assign cookies", 5),
+        ("minimum platforms", 4), ("maximize", 3), ("greedy", 4),
+        ("activity selection", 4), ("locally optimal", 4),
+        ("interval scheduling", 4), ("can you reach", 3),
     ],
+    # LIFO: brackets, monotonic sequence, next greater element
     "Stack": [
-        "parenthese", "bracket", "valid parenthese", "next greater",
-        "daily temperature", "largest rectangle", "monotonic",
-        "decode string", "evaluate expression", "stack", "balanced"
+        ("valid parentheses", 5), ("next greater element", 5),
+        ("largest rectangle in histogram", 5), ("daily temperatures", 5),
+        ("decode string", 5), ("evaluate expression", 5),
+        ("matching brackets", 4), ("balanced parentheses", 4),
+        ("monotonic stack", 4), ("parentheses", 3), ("brackets", 3),
     ],
+    # Prefix tree: fast string lookup by prefix
     "Trie": [
-        "prefix", "trie", "autocomplete", "word search ii", "longest common prefix",
-        "replace word", "design add and search", "implement trie", "starts with"
+        ("implement trie", 5), ("word search ii", 5), ("design search autocomplete", 5),
+        ("replace words", 4), ("longest common prefix", 4),
+        ("starts with", 4), ("prefix tree", 5), ("trie", 5),
+        ("autocomplete", 4), ("design add and search", 4),
     ],
+    # Cumulative sums for O(1) range queries
     "Prefix Sum": [
-        "subarray sum", "range sum", "prefix sum", "cumulative sum",
-        "sum equals k", "equilibrium index", "continuous subarray",
-        "count subarrays", "number of subarrays"
+        ("subarray sum equals k", 5), ("range sum query", 5),
+        ("prefix sum", 5), ("cumulative sum", 5),
+        ("number of subarrays whose sum", 5), ("count subarrays", 4),
+        ("sum equals to k", 4), ("equilibrium index", 4),
+        ("continuous subarray sum", 4), ("subarray sum", 3),
     ],
+    # Floyd cycle detection on linked lists
     "Fast & Slow Pointers": [
-        "cycle", "linked list cycle", "detect cycle", "tortoise", "hare",
-        "slow pointer", "fast pointer", "middle of the linked list",
-        "find the duplicate", "happy number", "loop in linked list",
-        "cycle detection", "floyd"
+        ("linked list has a cycle", 5), ("cycle in a linked list", 5),
+        ("linked list cycle", 5), ("detect cycle", 5), ("middle of the linked list", 5),
+        ("happy number", 5), ("find the duplicate number", 5),
+        ("tortoise", 5), ("hare", 4), ("cycle detection", 5),
+        ("floyd", 4), ("cycle", 3), ("loop in linked list", 5),
     ],
+    # DAG ordering; prerequisite / dependency resolution
     "Topological Sort": [
-        "topological", "prerequisite", "course schedule", "dependency",
-        "build order", "alien dictionary", "directed acyclic", "dag",
-        "task order", "in-degree", "kahn", "sequence reconstruction"
+        ("course schedule", 5), ("prerequisite", 5), ("build order", 5),
+        ("alien dictionary", 5), ("topological", 5), ("directed acyclic graph", 5),
+        ("dag", 4), ("in-degree", 4), ("kahn", 4),
+        ("task order", 4), ("sequence reconstruction", 4),
+        ("dependency", 3), ("finish all courses", 4),
     ],
 }
 
 
 def detect_patterns(problem_text: str):
+    """Weighted keyword detection: each keyword has a weight; highest-scoring patterns win."""
     text = problem_text.lower()
     scores = {}
 
-    for pattern, keywords in PATTERN_KEYWORDS.items():
-        score = sum(1 for kw in keywords if kw in text)
+    for pattern, kw_weight_pairs in PATTERN_KEYWORDS.items():
+        score = sum(w for kw, w in kw_weight_pairs if kw in text)
         if score > 0:
             scores[pattern] = score
 
-    # Sort by score, return top 3
+    # Sort by weighted score descending, return top 3 with score > 0
     ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     return [p for p, _ in ranked[:3]]
 
