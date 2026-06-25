@@ -768,6 +768,320 @@ return order;
 """
         }
     }
+    ,
+    "Recursion": {
+        "description": "Break a problem into identical but smaller subproblems. Define a base case (stopping condition) and a recursive case. Used for tree traversal, divide & conquer, and mathematical sequences. Add memoization (top-down DP) if overlapping subproblems exist.",
+        "use_cases": ["Maximum depth of binary tree", "Fibonacci number", "Power of x", "Merge sort", "Generate parentheses", "Flatten nested list", "Tower of Hanoi"],
+        "code": {
+            "C++": """\
+// ── Recursion: base case + recursive case ────
+int solve(int n) {
+    if (n <= 1) return n;                    // base case
+    return solve(n - 1) + solve(n - 2);     // Fibonacci example
+}
+
+// ── Tree Recursion ────────────────────────
+int depth(TreeNode* node) {
+    if (!node) return 0;                     // base case: null
+    int left  = depth(node->left);           // recurse left
+    int right = depth(node->right);          // recurse right
+    return max(left, right) + 1;            // combine
+}
+""",
+            "Python": """\
+# ── Recursion: base case + recursive case ────
+def solve(n):
+    if n <= 1:
+        return n                             # base case
+    return solve(n - 1) + solve(n - 2)     # Fibonacci example
+
+# ── Tree Recursion ────────────────────────
+def depth(node):
+    if not node:
+        return 0                             # base case: null
+    left  = depth(node.left)                # recurse left
+    right = depth(node.right)               # recurse right
+    return max(left, right) + 1             # combine
+""",
+            "Java": """\
+// ── Recursion: base case + recursive case ────
+int solve(int n) {
+    if (n <= 1) return n;                   // base case
+    return solve(n - 1) + solve(n - 2);    // Fibonacci example
+}
+
+// ── Tree Recursion ────────────────────────
+int depth(TreeNode node) {
+    if (node == null) return 0;             // base case: null
+    int left  = depth(node.left);           // recurse left
+    int right = depth(node.right);          // recurse right
+    return Math.max(left, right) + 1;      // combine
+}
+"""
+        }
+    },
+    "Union Find": {
+        "description": "Disjoint Set Union (DSU): efficiently tracks which elements belong to the same connected component. find(x) returns the root of x's set; union(x,y) merges two sets. Path compression + union by rank gives near O(1) amortized per operation. Use for connectivity, grouping, and cycle detection in undirected graphs.",
+        "use_cases": ["Number of provinces", "Redundant connection", "Accounts merge", "Most stones removed with same row or column", "Minimum spanning tree (Kruskal's)", "Detect cycle in undirected graph"],
+        "code": {
+            "C++": """\
+// ── Union Find / DSU ──────────────────────
+class UnionFind {
+    vector<int> parent, rank;
+public:
+    UnionFind(int n) : parent(n), rank(n, 0) {
+        iota(parent.begin(), parent.end(), 0); // parent[i] = i
+    }
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);   // path compression
+        return parent[x];
+    }
+    bool unite(int x, int y) {
+        int px = find(x), py = find(y);
+        if (px == py) return false;        // already connected
+        if (rank[px] < rank[py]) swap(px, py);
+        parent[py] = px;                   // union by rank
+        if (rank[px] == rank[py]) rank[px]++;
+        return true;
+    }
+    bool connected(int x, int y) { return find(x) == find(y); }
+};
+""",
+            "Python": """\
+# ── Union Find / DSU ──────────────────────
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank   = [0] * n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # path compression
+        return self.parent[x]
+
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False                   # already connected
+        if self.rank[px] < self.rank[py]:
+            px, py = py, px
+        self.parent[py] = px              # union by rank
+        if self.rank[px] == self.rank[py]:
+            self.rank[px] += 1
+        return True
+
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+""",
+            "Java": """\
+// ── Union Find / DSU ──────────────────────
+class UnionFind {
+    int[] parent, rank;
+    UnionFind(int n) {
+        parent = new int[n]; rank = new int[n];
+        for (int i = 0; i < n; i++) parent[i] = i;
+    }
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);   // path compression
+        return parent[x];
+    }
+    boolean union(int x, int y) {
+        int px = find(x), py = find(y);
+        if (px == py) return false;
+        if (rank[px] < rank[py]) { int t = px; px = py; py = t; }
+        parent[py] = px;                   // union by rank
+        if (rank[px] == rank[py]) rank[px]++;
+        return true;
+    }
+    boolean connected(int x, int y) { return find(x) == find(y); }
+}
+"""
+        }
+    },
+    "Monotonic Deque": {
+        "description": "A double-ended queue (deque) that maintains elements in strictly increasing or decreasing order by evicting elements that can no longer be the answer. Achieves O(1) amortized sliding-window minimum or maximum — faster than a heap's O(log k). Each element is enqueued and dequeued at most once, giving O(n) total. Distinct from Monotonic Stack which doesn't support sliding window removal.",
+        "use_cases": ["Sliding window maximum", "Sliding window minimum", "Jump game VI", "Shortest subarray with sum at least K", "Constrained subsequence sum", "Max value of equation"],
+        "code": {
+            "C++": """\
+// ── Monotonic Deque (Sliding Window Maximum) ──
+// deque stores INDICES; values in deque are strictly decreasing
+deque<int> dq;
+vector<int> result;
+
+for (int i = 0; i < n; i++) {
+    // Remove indices that have left the window
+    while (!dq.empty() && dq.front() < i - k + 1)
+        dq.pop_front();
+
+    // Maintain decreasing order: pop smaller tail values
+    while (!dq.empty() && nums[dq.back()] < nums[i])
+        dq.pop_back();
+
+    dq.push_back(i);
+
+    if (i >= k - 1)                       // window is full
+        result.push_back(nums[dq.front()]); // front = max index
+}
+""",
+            "Python": """\
+# ── Monotonic Deque (Sliding Window Maximum) ──
+# deque stores INDICES; values in deque are strictly decreasing
+from collections import deque
+
+dq = deque()
+result = []
+
+for i in range(len(nums)):
+    # Remove indices that have left the window
+    while dq and dq[0] < i - k + 1:
+        dq.popleft()
+
+    # Maintain decreasing order: pop smaller tail values
+    while dq and nums[dq[-1]] < nums[i]:
+        dq.pop()
+
+    dq.append(i)
+
+    if i >= k - 1:                        # window is full
+        result.append(nums[dq[0]])        # front = max index
+""",
+            "Java": """\
+// ── Monotonic Deque (Sliding Window Maximum) ──
+// deque stores INDICES; values in deque are strictly decreasing
+Deque<Integer> dq = new ArrayDeque<>();
+int[] result = new int[n - k + 1];
+int ri = 0;
+
+for (int i = 0; i < n; i++) {
+    // Remove indices that have left the window
+    while (!dq.isEmpty() && dq.peekFirst() < i - k + 1)
+        dq.pollFirst();
+
+    // Maintain decreasing order: pop smaller tail values
+    while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i])
+        dq.pollLast();
+
+    dq.offerLast(i);
+
+    if (i >= k - 1)                              // window is full
+        result[ri++] = nums[dq.peekFirst()];     // front = max index
+}
+"""
+        }
+    },
+    "Interval Merging": {
+        "description": "Sort intervals by start time, then iterate: if the current interval's start <= previous merged interval's end, they overlap — extend the end. Otherwise, push a new interval. Use whenever the problem involves a collection of intervals and asks to merge, insert, count overlaps, or find free time.",
+        "use_cases": ["Merge intervals", "Insert interval", "Meeting rooms (can attend all?)", "Meeting rooms II (min rooms needed)", "Employee free time", "Non-overlapping intervals (min removals)"],
+        "code": {
+            "C++": """\
+// ── Interval Merging ───────────────────────
+sort(intervals.begin(), intervals.end()); // sort by start
+
+vector<vector<int>> merged;
+for (auto& iv : intervals) {
+    if (merged.empty() || merged.back()[1] < iv[0]) {
+        merged.push_back(iv);             // no overlap: add new
+    } else {
+        merged.back()[1] = max(merged.back()[1], iv[1]); // overlap: extend
+    }
+}
+return merged;
+""",
+            "Python": """\
+# ── Interval Merging ───────────────────────
+intervals.sort(key=lambda x: x[0])       # sort by start
+
+merged = []
+for start, end in intervals:
+    if not merged or merged[-1][1] < start:
+        merged.append([start, end])      # no overlap: add new
+    else:
+        merged[-1][1] = max(merged[-1][1], end)  # overlap: extend
+
+return merged
+""",
+            "Java": """\
+// ── Interval Merging ───────────────────────
+Arrays.sort(intervals, (a, b) -> a[0] - b[0]); // sort by start
+
+List<int[]> merged = new ArrayList<>();
+for (int[] iv : intervals) {
+    if (merged.isEmpty() || merged.get(merged.size()-1)[1] < iv[0]) {
+        merged.add(iv);                   // no overlap: add new
+    } else {
+        merged.get(merged.size()-1)[1] =
+            Math.max(merged.get(merged.size()-1)[1], iv[1]); // extend
+    }
+}
+return merged.toArray(new int[0][]);
+"""
+        }
+    },
+    "Bit Manipulation": {
+        "description": "Use bitwise operators (AND &, OR |, XOR ^, NOT ~, left-shift <<, right-shift >>) to solve problems in O(1) extra space. Key identities: a^a=0 (cancel pairs), a^0=a (identity), XOR is commutative and associative. Check bit i: (n>>i)&1. Set bit i: n|(1<<i). Clear bit i: n&~(1<<i). Count set bits: __builtin_popcount(n) in C++.",
+        "use_cases": ["Single number (find unique)", "Number of 1 bits (Hamming weight)", "Missing number", "Counting bits", "Reverse bits", "Sum of two integers without +", "Power of two", "XOR queries on array"],
+        "code": {
+            "C++": """\
+// ── XOR Trick: find single unpaired element ───
+// a ^ a = 0, a ^ 0 = a  →  only the unpaired element survives
+int result = 0;
+for (int x : nums) result ^= x;
+return result;
+
+// ── Common bit operations ──────────────────
+bool isSet  = (n >> i) & 1;           // check if bit i is set
+int  setBit = n | (1 << i);           // set bit i
+int  clrBit = n & ~(1 << i);          // clear bit i
+int  togBit = n ^ (1 << i);           // toggle bit i
+int  popCnt = __builtin_popcount(n);  // count set bits (GCC)
+
+// ── Missing number (XOR indices with values) ──
+int missing = n;
+for (int i = 0; i < n; i++) missing ^= i ^ nums[i];
+""",
+            "Python": """\
+# ── XOR Trick: find single unpaired element ───
+# a ^ a = 0, a ^ 0 = a  →  only the unpaired element survives
+result = 0
+for x in nums:
+    result ^= x
+return result
+
+# ── Common bit operations ──────────────────
+is_set  = (n >> i) & 1            # check if bit i is set
+set_bit = n | (1 << i)            # set bit i
+clr_bit = n & ~(1 << i)           # clear bit i
+tog_bit = n ^ (1 << i)            # toggle bit i
+pop_cnt = bin(n).count('1')       # count set bits
+
+# ── Missing number (XOR indices with values) ──
+missing = len(nums)
+for i, num in enumerate(nums):
+    missing ^= i ^ num
+""",
+            "Java": """\
+// ── XOR Trick: find single unpaired element ───
+// a ^ a = 0, a ^ 0 = a  →  only the unpaired element survives
+int result = 0;
+for (int x : nums) result ^= x;
+return result;
+
+// ── Common bit operations ──────────────────
+boolean isSet  = ((n >> i) & 1) == 1;  // check if bit i is set
+int     setBit = n | (1 << i);          // set bit i
+int     clrBit = n & ~(1 << i);         // clear bit i
+int     togBit = n ^ (1 << i);          // toggle bit i
+int     popCnt = Integer.bitCount(n);   // count set bits
+
+// ── Missing number (XOR indices with values) ──
+int missing = nums.length;
+for (int i = 0; i < nums.length; i++)
+    missing ^= i ^ nums[i];
+"""
+        }
+    }
 }
 
 PATTERN_NAMES = list(TEMPLATES.keys())

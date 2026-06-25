@@ -542,6 +542,43 @@ PATTERN_KEYWORDS = {
         ("task order", 4), ("sequence reconstruction", 4),
         ("dependency", 3), ("finish all courses", 4),
     ],
+    # Tree/math: break into smaller identical subproblems
+    "Recursion": [
+        ("maximum depth", 5), ("minimum depth", 5), ("fibonacci", 5),
+        ("tower of hanoi", 5), ("flatten nested", 5), ("power of x", 4),
+        ("pow(x", 4), ("base case", 4), ("recursive", 3),
+        ("divide and conquer", 4), ("merge sort", 4),
+    ],
+    # DSU: connectivity grouping
+    "Union Find": [
+        ("number of provinces", 5), ("redundant connection", 5),
+        ("accounts merge", 5), ("union find", 5), ("disjoint set", 5),
+        ("dsu", 5), ("find and union", 4), ("connected components", 4),
+        ("kruskal", 4), ("minimum spanning tree", 4),
+        ("most stones removed", 4), ("same component", 3),
+    ],
+    # Deque-based sliding window max/min
+    "Monotonic Deque": [
+        ("sliding window maximum", 5), ("sliding window minimum", 5),
+        ("monotonic deque", 5), ("window max", 4), ("window min", 4),
+        ("jump game vi", 5), ("constrained subsequence sum", 5),
+        ("max value of equation", 4), ("deque", 3),
+    ],
+    # Sort + merge overlapping ranges
+    "Interval Merging": [
+        ("merge intervals", 5), ("insert interval", 5), ("meeting rooms", 5),
+        ("non-overlapping intervals", 5), ("employee free time", 5),
+        ("overlapping intervals", 4), ("minimum meeting rooms", 4),
+        ("interval", 3), ("merge overlapping", 4), ("free time", 3),
+    ],
+    # XOR tricks and bitwise ops
+    "Bit Manipulation": [
+        ("single number", 5), ("number of 1 bits", 5), ("hamming weight", 5),
+        ("missing number", 5), ("counting bits", 5), ("reverse bits", 5),
+        ("sum of two integers", 5), ("power of two", 5),
+        ("bitwise", 4), ("xor", 4), ("bit manipulation", 5),
+        ("find the single", 4), ("without using", 3),
+    ],
 }
 
 

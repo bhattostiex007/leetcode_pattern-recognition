@@ -458,6 +458,11 @@ EXAMPLE_PROBLEMS = {
     "Number of Islands (DFS)": "Given an m x n 2D binary grid which represents a map of 1s (land) and 0s (water), return the number of islands.",
     "Coin Change (DP)": "Given coins of different denominations and a total amount, find the minimum number of coins needed. Return -1 if it's not possible.",
     "Binary Search": "Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be inserted.",
+    "Generate Parentheses (Recursion / Backtracking)": "Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.",
+    "Number of Provinces (Union Find)": "There are n cities. Some of them are connected, while some are not. If city a is connected directly with city b, and city b is connected directly with city c, then city a is connected indirectly with city c. A province is a group of directly or indirectly connected cities and no other cities outside of the group. You are given an n x n matrix isConnected where isConnected[i][j] = 1 if the ith city and the jth city are directly connected, and isConnected[i][j] = 0 otherwise. Return the total number of provinces.",
+    "Sliding Window Maximum (Monotonic Deque)": "You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position. Return the max sliding window.",
+    "Merge Intervals (Interval Merging)": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+    "Single Number (Bit Manipulation)": "Given a non-empty array of integers nums, every element appears twice except for one. Find that single one. You must implement a solution with a linear runtime complexity and use only constant extra space.",
 }
 
 with left_col:
