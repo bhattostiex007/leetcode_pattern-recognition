@@ -1,7 +1,7 @@
 TEMPLATES = {
     "Two Pointers": {
-        "description": "Use two pointers moving toward each other or in the same direction to solve array/string problems in O(n).",
-        "use_cases": ["Pair sum in sorted array", "Remove duplicates", "Container with most water", "Three Sum", "Trapping rain water"],
+        "description": "Use two index pointers on a sorted ARRAY or STRING — one starting from the left, one from the right — moving toward each other (or in the same direction) to find pairs or remove duplicates in O(n). NOT used for linked lists or cycle detection.",
+        "use_cases": ["Pair sum in sorted array", "Remove duplicates from sorted array", "Container with most water", "Three Sum", "Trapping rain water", "Valid palindrome"],
         "code": {
             "C++": """\
 int left = 0, right = n - 1;
@@ -52,7 +52,7 @@ while (left < right) {
         }
     },
     "Sliding Window": {
-        "description": "Maintain a variable-size window over a sequence, expanding/shrinking it to satisfy a constraint.",
+        "description": "Maintain a contiguous window over an ARRAY or STRING, expanding the right boundary and shrinking the left boundary to satisfy a constraint. Used when the problem asks for a longest/shortest subarray or substring meeting some condition.",
         "use_cases": ["Longest substring without repeating chars", "Minimum window substring", "Max sum subarray of size k", "At most K distinct characters"],
         "code": {
             "C++": """\
@@ -111,7 +111,7 @@ return result;
         }
     },
     "Binary Search": {
-        "description": "Halve the search space each step on a sorted or monotonic domain. O(log n).",
+        "description": "Eliminate half the search space each step on a SORTED array or a monotonic answer domain. O(log n). Use when the problem says 'sorted array', 'find minimum/maximum feasible value', or 'search in rotated array'.",
         "use_cases": ["Search in sorted array", "Find first/last position", "Search in rotated array", "Koko eating bananas", "Capacity to ship packages"],
         "code": {
             "C++": """\
@@ -163,7 +163,7 @@ return -1; // not found
         }
     },
     "BFS": {
-        "description": "Explore nodes level-by-level with a queue. Guarantees shortest path in unweighted graphs.",
+        "description": "Explore a GRAPH or GRID level-by-level using a queue. Guarantees the shortest path in unweighted graphs. Use when the problem asks for minimum steps, levels, or shortest distance between nodes.",
         "use_cases": ["Shortest path", "Level order traversal", "Word ladder", "Rotten oranges", "01 Matrix"],
         "code": {
             "C++": """\
@@ -238,7 +238,7 @@ return -1; // unreachable
         }
     },
     "DFS": {
-        "description": "Recursively explore all paths depth-first. Great for connectivity, tree problems, and combinatorics.",
+        "description": "Recursively explore all paths depth-first in a GRAPH, GRID, or TREE. Use for connectivity (number of islands, connected components), path existence, flood fill, or tree traversal. Does not guarantee shortest path.",
         "use_cases": ["Number of islands", "Path sum in tree", "Clone graph", "Connected components", "Flood fill"],
         "code": {
             "C++": """\
@@ -286,7 +286,7 @@ void dfs(char[][] grid, int r, int c) {
         }
     },
     "Dynamic Programming": {
-        "description": "Store results of overlapping subproblems to avoid recomputation. Build solution bottom-up or top-down.",
+        "description": "Break a problem into overlapping subproblems, store their results to avoid recomputation. Use when the problem has optimal substructure and overlapping subproblems — keywords: 'minimum cost', 'maximum profit', 'number of ways', 'longest subsequence'.",
         "use_cases": ["Coin change", "Longest common subsequence", "Knapsack", "Climbing stairs", "Edit distance", "Longest increasing subsequence"],
         "code": {
             "C++": """\
@@ -319,7 +319,7 @@ return dp[n];
         }
     },
     "Backtracking": {
-        "description": "Explore all possibilities recursively; prune branches that violate constraints.",
+        "description": "Explore all possible combinations/permutations/subsets recursively, pruning branches that violate constraints. Use when the problem asks to enumerate ALL valid solutions — keywords: 'all permutations', 'all subsets', 'all combinations', 'place N queens'.",
         "use_cases": ["All permutations", "Combination sum", "Subsets", "N-Queens", "Word search", "Sudoku solver"],
         "code": {
             "C++": """\
@@ -371,7 +371,7 @@ void backtrack(int start, List<Integer> current,
         }
     },
     "Heap / Priority Queue": {
-        "description": "Efficiently access the min/max of a dynamic dataset in O(log n) per operation.",
+        "description": "Efficiently access the minimum or maximum element of a dynamic dataset in O(log n) per operation. Use when the problem asks for the K-th largest/smallest, a running median, or merging K sorted sequences.",
         "use_cases": ["Top K frequent elements", "K-th largest element", "Merge K sorted lists", "Task scheduler", "Find median from data stream"],
         "code": {
             "C++": """\
@@ -409,7 +409,7 @@ return minHeap.peek(); // k-th largest
         }
     },
     "Hash Map": {
-        "description": "O(1) average lookup/insert. Use for counting frequencies, grouping, or complement-finding.",
+        "description": "O(1) average lookup and insert. Use when you need to count element frequencies, group elements by key, or find a complement/pair in a single pass. Typical signals: 'two sum', 'group anagrams', 'count occurrences', 'find duplicate'.",
         "use_cases": ["Two Sum", "Group anagrams", "Longest consecutive sequence", "Subarray sum equals K", "Top K frequent"],
         "code": {
             "C++": """\
@@ -445,7 +445,7 @@ for (int i = 0; i < nums.length; i++) {
         }
     },
     "Greedy": {
-        "description": "Make the locally optimal choice at each step. Works when local optimum leads to global optimum.",
+        "description": "Make the locally optimal choice at each step, trusting it leads to the global optimum. No backtracking. Use for interval scheduling, jump games, or resource allocation — keywords: 'minimum number of', 'maximum non-overlapping', 'can you reach the end'.",
         "use_cases": ["Jump game", "Gas station", "Minimum number of arrows", "Non-overlapping intervals", "Assign cookies"],
         "code": {
             "C++": """\
@@ -492,7 +492,7 @@ return count;
         }
     },
     "Stack": {
-        "description": "LIFO structure for matching brackets, evaluating expressions, or maintaining monotonic sequences.",
+        "description": "LIFO data structure for bracket matching, expression evaluation, or maintaining a monotonic sequence of elements. Use when you need the 'next greater/smaller element', 'valid parentheses', or 'largest rectangle in histogram'.",
         "use_cases": ["Valid parentheses", "Next greater element", "Daily temperatures", "Largest rectangle in histogram", "Decode string"],
         "code": {
             "C++": """\
@@ -532,7 +532,7 @@ for (int i = 0; i < n; i++) {
         }
     },
     "Trie": {
-        "description": "Prefix tree for fast string prefix lookups, autocomplete, and word existence checks.",
+        "description": "A prefix tree (digital tree) for fast string prefix lookups in O(L) time where L is word length. Use when the problem involves dictionary lookups, autocomplete, word search, or finding words with a common prefix.",
         "use_cases": ["Implement Trie", "Word search II", "Replace words", "Longest common prefix", "Design search autocomplete"],
         "code": {
             "C++": """\
@@ -595,7 +595,7 @@ class Trie {
         }
     },
     "Prefix Sum": {
-        "description": "Precompute cumulative sums of an array to answer range sum queries in O(1) time.",
+        "description": "Precompute cumulative sums so that any subarray sum query [l, r] is answered in O(1). Use when the problem asks for count of subarrays with a given sum, range sum queries, or equilibrium indices. Often combined with a Hash Map to find subarrays summing to k.",
         "use_cases": ["Range sum query", "Subarray sum equals K", "Equilibrium index", "Continuous subarray sum"],
         "code": {
             "C++": """\
@@ -632,16 +632,17 @@ int query(int left, int right) {
         }
     },
     "Fast & Slow Pointers": {
-        "description": "Use two pointers moving at different speeds (usually 1x and 2x) to find cycles or the middle of a linked list.",
-        "use_cases": ["Linked list cycle", "Middle of the linked list", "Find the duplicate number", "Happy number", "Palindrome linked list"],
+        "description": "Floyd's Tortoise-and-Hare algorithm: use two pointers on a LINKED LIST moving at different speeds (slow moves 1 node at a time, fast moves 2 nodes at a time). When they meet, a cycle exists. Also used to find the middle node of a linked list. This is DISTINCT from Two Pointers which operates on arrays/strings.",
+        "use_cases": ["Detect cycle in linked list", "Find start of cycle in linked list", "Middle of the linked list", "Find the duplicate number (array as implicit linked list)", "Happy number", "Palindrome linked list"],
         "code": {
             "C++": """\
+// Floyd's Cycle Detection (Tortoise & Hare)
 ListNode* slow = head;
 ListNode* fast = head;
 
 while (fast != nullptr && fast->next != nullptr) {
-    slow = slow->next;          // move 1 step
-    fast = fast->next->next;    // move 2 steps
+    slow = slow->next;          // tortoise: 1 step
+    fast = fast->next->next;    // hare: 2 steps
     
     if (slow == fast) {
         return true; // cycle detected
@@ -650,25 +651,27 @@ while (fast != nullptr && fast->next != nullptr) {
 return false; // no cycle
 """,
             "Python": """\
+# Floyd's Cycle Detection (Tortoise & Hare)
 slow = head
 fast = head
 
 while fast and fast.next:
-    slow = slow.next          # move 1 step
-    fast = fast.next.next     # move 2 steps
+    slow = slow.next          # tortoise: 1 step
+    fast = fast.next.next     # hare: 2 steps
     
     if slow == fast:
-        return True # cycle detected
+        return True  # cycle detected
         
-return False # no cycle
+return False  # no cycle
 """,
             "Java": """\
+// Floyd's Cycle Detection (Tortoise & Hare)
 ListNode slow = head;
 ListNode fast = head;
 
 while (fast != null && fast.next != null) {
-    slow = slow.next;          // move 1 step
-    fast = fast.next.next;     // move 2 steps
+    slow = slow.next;          // tortoise: 1 step
+    fast = fast.next.next;     // hare: 2 steps
     
     if (slow == fast) {
         return true; // cycle detected
@@ -679,7 +682,7 @@ return false; // no cycle
         }
     },
     "Topological Sort": {
-        "description": "Linear ordering of vertices in a Directed Acyclic Graph (DAG) such that for every directed edge u -> v, vertex u comes before v.",
+        "description": "Linear ordering of vertices in a Directed Acyclic Graph (DAG) using Kahn's algorithm (BFS with in-degree counting) or DFS post-order. Use when the problem involves task scheduling with prerequisites, dependency resolution, or detecting cycles in a directed graph — keywords: 'course schedule', 'prerequisites', 'build order'.",
         "use_cases": ["Course schedule", "Alien dictionary", "Build a matrix with conditions", "Sequence reconstruction"],
         "code": {
             "C++": """\

@@ -9,8 +9,8 @@ CORS(app)
 # ─────────────────────────────────────────────
 CPP_TEMPLATES = {
     "Two Pointers": {
-        "description": "Use two pointers moving toward each other or in the same direction to solve array/string problems in O(n).",
-        "use_cases": ["Pair sum in sorted array", "Remove duplicates", "Container with most water", "Three Sum", "Trapping rain water"],
+        "description": "Use two index pointers on a sorted ARRAY or STRING — one from the left, one from the right — moving toward each other to find pairs or remove duplicates in O(n). NOT used for linked lists or cycle detection.",
+        "use_cases": ["Pair sum in sorted array", "Remove duplicates from sorted array", "Container with most water", "Three Sum", "Trapping rain water", "Valid palindrome"],
         "template": """\
 // ── Two Pointers ──────────────────────────────
 int left = 0, right = n - 1;
@@ -31,7 +31,7 @@ while (left < right) {
     },
 
     "Sliding Window": {
-        "description": "Maintain a variable-size window over a sequence, expanding/shrinking it to satisfy a constraint.",
+        "description": "Maintain a contiguous window over an ARRAY or STRING, expanding the right boundary and shrinking the left boundary to satisfy a constraint. Used when the problem asks for a longest/shortest subarray or substring meeting some condition.",
         "use_cases": ["Longest substring without repeating chars", "Minimum window substring", "Max sum subarray of size k", "At most K distinct characters"],
         "template": """\
 // ── Sliding Window ────────────────────────────
@@ -54,7 +54,7 @@ return result;
     },
 
     "Binary Search": {
-        "description": "Halve the search space each step on a sorted or monotonic domain. O(log n).",
+        "description": "Eliminate half the search space each step on a SORTED array or a monotonic answer domain. O(log n). Use when the problem says 'sorted array', 'find minimum/maximum feasible value', or 'search in rotated array'.",
         "use_cases": ["Search in sorted array", "Find first/last position", "Search in rotated array", "Koko eating bananas", "Capacity to ship packages"],
         "template": """\
 // ── Binary Search ─────────────────────────────
@@ -76,7 +76,7 @@ return -1; // not found
     },
 
     "BFS": {
-        "description": "Explore nodes level-by-level with a queue. Guarantees shortest path in unweighted graphs.",
+        "description": "Explore a GRAPH or GRID level-by-level using a queue. Guarantees the shortest path in unweighted graphs. Use when the problem asks for minimum steps, levels, or shortest distance between nodes.",
         "use_cases": ["Shortest path", "Level order traversal", "Word ladder", "Rotten oranges", "01 Matrix"],
         "template": """\
 // ── BFS ───────────────────────────────────────
@@ -106,7 +106,7 @@ return -1; // unreachable
     },
 
     "DFS": {
-        "description": "Recursively explore all paths depth-first. Great for connectivity, tree problems, and combinatorics.",
+        "description": "Recursively explore all paths depth-first in a GRAPH, GRID, or TREE. Use for connectivity (number of islands, connected components), path existence, flood fill, or tree traversal. Does not guarantee shortest path.",
         "use_cases": ["Number of islands", "Path sum in tree", "Clone graph", "Connected components", "Flood fill"],
         "template": """\
 // ── DFS (Grid) ────────────────────────────────
@@ -134,7 +134,7 @@ int dfs(TreeNode* node) {
     },
 
     "Dynamic Programming": {
-        "description": "Store results of overlapping subproblems to avoid recomputation. Build solution bottom-up or top-down.",
+        "description": "Break a problem into overlapping subproblems, store their results to avoid recomputation. Use when the problem has optimal substructure and overlapping subproblems — keywords: 'minimum cost', 'maximum profit', 'number of ways', 'longest subsequence'.",
         "use_cases": ["Coin change", "Longest common subsequence", "Knapsack", "Climbing stairs", "Edit distance", "Longest increasing subsequence"],
         "template": """\
 // ── 1-D DP ────────────────────────────────────
@@ -162,7 +162,7 @@ return dp[m][n];
     },
 
     "Backtracking": {
-        "description": "Explore all possibilities recursively; prune branches that violate constraints.",
+        "description": "Explore all possible combinations/permutations/subsets recursively, pruning branches that violate constraints. Use when the problem asks to enumerate ALL valid solutions — keywords: 'all permutations', 'all subsets', 'all combinations', 'place N queens'.",
         "use_cases": ["All permutations", "Combination sum", "Subsets", "N-Queens", "Word search", "Sudoku solver"],
         "template": """\
 // ── Backtracking ──────────────────────────────
@@ -185,7 +185,7 @@ void backtrack(int start, vector<int>& current,
     },
 
     "Heap / Priority Queue": {
-        "description": "Efficiently access the min/max of a dynamic dataset in O(log n) per operation.",
+        "description": "Efficiently access the minimum or maximum element of a dynamic dataset in O(log n) per operation. Use when the problem asks for the K-th largest/smallest, a running median, or merging K sorted sequences.",
         "use_cases": ["Top K frequent elements", "K-th largest element", "Merge K sorted lists", "Task scheduler", "Find median from data stream"],
         "template": """\
 // ── Min-Heap (keep K largest) ─────────────────
@@ -207,7 +207,7 @@ maxHeap.pop();
     },
 
     "Hash Map": {
-        "description": "O(1) average lookup/insert. Use for counting frequencies, grouping, or complement-finding.",
+        "description": "O(1) average lookup and insert. Use when you need to count element frequencies, group elements by key, or find a complement/pair in a single pass. Typical signals: 'two sum', 'group anagrams', 'count occurrences', 'find duplicate'.",
         "use_cases": ["Two Sum", "Group anagrams", "Longest consecutive sequence", "Subarray sum equals K", "Top K frequent"],
         "template": """\
 // ── Hash Map (frequency / complement) ────────
@@ -231,7 +231,7 @@ for (auto& [val, cnt] : freq) {
     },
 
     "Greedy": {
-        "description": "Make the locally optimal choice at each step. Works when local optimum leads to global optimum.",
+        "description": "Make the locally optimal choice at each step, trusting it leads to the global optimum. No backtracking. Use for interval scheduling, jump games, or resource allocation — keywords: 'minimum number of', 'maximum non-overlapping', 'can you reach the end'.",
         "use_cases": ["Jump game", "Gas station", "Minimum number of arrows", "Non-overlapping intervals", "Assign cookies"],
         "template": """\
 // ── Greedy (Intervals) ────────────────────────
@@ -251,7 +251,7 @@ return count;
     },
 
     "Stack": {
-        "description": "LIFO structure for matching brackets, evaluating expressions, or maintaining monotonic sequences.",
+        "description": "LIFO data structure for bracket matching, expression evaluation, or maintaining a monotonic sequence of elements. Use when you need the 'next greater/smaller element', 'valid parentheses', or 'largest rectangle in histogram'.",
         "use_cases": ["Valid parentheses", "Next greater element", "Daily temperatures", "Largest rectangle in histogram", "Decode string"],
         "template": """\
 // ── Monotonic Stack (Next Greater Element) ────
@@ -283,7 +283,7 @@ return st.empty();
     },
 
     "Trie": {
-        "description": "Prefix tree for fast string prefix lookups, autocomplete, and word existence checks.",
+        "description": "A prefix tree (digital tree) for fast string prefix lookups in O(L) time where L is word length. Use when the problem involves dictionary lookups, autocomplete, word search, or finding words with a common prefix.",
         "use_cases": ["Implement Trie", "Word search II", "Replace words", "Longest common prefix", "Design search autocomplete"],
         "template": """\
 // ── Trie ──────────────────────────────────────
@@ -325,6 +325,94 @@ public:
 };
 """
     },
+
+    "Prefix Sum": {
+        "description": "Precompute cumulative sums so that any subarray sum query [l, r] is answered in O(1). Use when the problem asks for count of subarrays with a given sum, range sum queries, or equilibrium indices. Often combined with a Hash Map to find subarrays summing to k.",
+        "use_cases": ["Range sum query", "Subarray sum equals K", "Equilibrium index", "Continuous subarray sum"],
+        "template": """\
+// ── Prefix Sum ────────────────────────────────
+vector<int> prefixSum(n + 1, 0);
+for (int i = 0; i < n; i++) {
+    prefixSum[i + 1] = prefixSum[i] + nums[i];
+}
+
+// Query sum from index left to right (inclusive, 0-indexed)
+// rangeSum = prefixSum[right + 1] - prefixSum[left]
+
+// ── Prefix Sum + Hash Map (Subarray Sum = K) ──
+unordered_map<int, int> prefixCount; // prefixSum -> count
+prefixCount[0] = 1;
+int runningSum = 0, result = 0;
+for (int x : nums) {
+    runningSum += x;
+    result += prefixCount[runningSum - k];
+    prefixCount[runningSum]++;
+}
+return result;
+"""
+    },
+
+    "Fast & Slow Pointers": {
+        "description": "Floyd's Tortoise-and-Hare algorithm: use two pointers on a LINKED LIST moving at different speeds (slow moves 1 node at a time, fast moves 2 nodes at a time). When they meet, a cycle exists. Also used to find the middle node. DISTINCT from Two Pointers which operates on arrays/strings.",
+        "use_cases": ["Detect cycle in linked list", "Find start of cycle in linked list", "Middle of the linked list", "Find the duplicate number", "Happy number", "Palindrome linked list"],
+        "template": """\
+// ── Floyd's Cycle Detection (Tortoise & Hare) ─
+ListNode* slow = head;
+ListNode* fast = head;
+
+while (fast != nullptr && fast->next != nullptr) {
+    slow = slow->next;          // tortoise: 1 step
+    fast = fast->next->next;    // hare: 2 steps
+
+    if (slow == fast) {
+        return true; // cycle detected
+    }
+}
+return false; // no cycle
+
+// ── Find Middle of Linked List ────────────────
+// When fast reaches end, slow is at the middle
+ListNode* slow2 = head;
+ListNode* fast2 = head;
+while (fast2 && fast2->next) {
+    slow2 = slow2->next;
+    fast2 = fast2->next->next;
+}
+// slow2 is now at the middle node
+"""
+    },
+
+    "Topological Sort": {
+        "description": "Linear ordering of vertices in a Directed Acyclic Graph (DAG) using Kahn's algorithm (BFS with in-degree counting). Use when the problem involves task scheduling with prerequisites, dependency resolution, or detecting cycles in a directed graph — keywords: 'course schedule', 'prerequisites', 'build order'.",
+        "use_cases": ["Course schedule", "Alien dictionary", "Build a matrix with conditions", "Sequence reconstruction"],
+        "template": """\
+// ── Topological Sort (Kahn's BFS Algorithm) ───
+vector<int> inDegree(n, 0);
+vector<vector<int>> adj(n);
+for (auto& edge : edges) {
+    adj[edge[0]].push_back(edge[1]);
+    inDegree[edge[1]]++;
+}
+
+queue<int> q;
+for (int i = 0; i < n; i++) {
+    if (inDegree[i] == 0) q.push(i); // start with no dependencies
+}
+
+vector<int> order;
+while (!q.empty()) {
+    int node = q.front(); q.pop();
+    order.push_back(node);
+
+    for (int neighbor : adj[node]) {
+        inDegree[neighbor]--;
+        if (inDegree[neighbor] == 0) q.push(neighbor);
+    }
+}
+if (order.size() != n) return {}; // cycle detected — not a DAG
+return order;
+"""
+    },
 }
 
 # ─────────────────────────────────────────────
@@ -332,8 +420,8 @@ public:
 # ─────────────────────────────────────────────
 PATTERN_KEYWORDS = {
     "Two Pointers": [
-        "two pointer", "opposite end", "pair sum", "palindrome", "sorted array",
-        "remove duplicate", "reverse", "container with most water", "three sum",
+        "two pointer", "opposite end", "pair sum", "sorted array",
+        "remove duplicate", "container with most water", "three sum",
         "trapping rain", "two sum ii", "valid palindrome", "move zeroes"
     ],
     "Sliding Window": [
@@ -391,6 +479,22 @@ PATTERN_KEYWORDS = {
     "Trie": [
         "prefix", "trie", "autocomplete", "word search ii", "longest common prefix",
         "replace word", "design add and search", "implement trie", "starts with"
+    ],
+    "Prefix Sum": [
+        "subarray sum", "range sum", "prefix sum", "cumulative sum",
+        "sum equals k", "equilibrium index", "continuous subarray",
+        "count subarrays", "number of subarrays"
+    ],
+    "Fast & Slow Pointers": [
+        "cycle", "linked list cycle", "detect cycle", "tortoise", "hare",
+        "slow pointer", "fast pointer", "middle of the linked list",
+        "find the duplicate", "happy number", "loop in linked list",
+        "cycle detection", "floyd"
+    ],
+    "Topological Sort": [
+        "topological", "prerequisite", "course schedule", "dependency",
+        "build order", "alien dictionary", "directed acyclic", "dag",
+        "task order", "in-degree", "kahn", "sequence reconstruction"
     ],
 }
 
