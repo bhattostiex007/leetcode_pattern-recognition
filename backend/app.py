@@ -12,8 +12,77 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Model: llama-3.3-70b-versatile on Groq
+# Why: 70B parameters vs 8B → far better instruction following & reasoning.
+#      Same Groq API key, no extra setup needed.
+# Prompt strategy: system/user split
+#   • system = static expert persona + disambiguation rules + few-shot examples
+#   • user   = the problem text only
+# This way the model "knows the rules" before seeing the problem.
+# ─────────────────────────────────────────────────────────────────────────────
+
+SYSTEM_PROMPT = """You are a world-class competitive programming coach and algorithm expert.
+Your ONLY job is to classify a LeetCode problem into 1, 2, or 3 algorithm patterns from a fixed list.
+
+═══ CRITICAL DISAMBIGUATION RULES (follow exactly) ═══
+
+1. LINKED LIST + CYCLE → always "Fast & Slow Pointers". NEVER "Two Pointers".
+   "Two Pointers" is ONLY for sorted arrays or strings.
+
+2. BINARY TREE LEVEL / WIDTH / MIN DISTANCE → always "BFS".
+   Never classify tree-level problems as "Dynamic Programming".
+
+3. "TWO SUM" (find indices that add up to target) → always "Hash Map".
+   "Two Sum II" (sorted array) → "Two Pointers".
+
+4. COIN CHANGE / CLIMBING STAIRS / MIN COINS → always "Dynamic Programming".
+   These are NOT greedy (greedy fails for coin change in general).
+
+5. PREREQUISITES / COURSE SCHEDULE / BUILD ORDER → always "Topological Sort".
+
+6. SUBARRAY SUM EQUALS K (count subarrays) → "Prefix Sum" + optionally "Hash Map".
+   NOT "Sliding Window" (sliding window doesn't work for negative numbers).
+
+7. LONGEST SUBSTRING WITHOUT REPEATING → always "Sliding Window".
+   NEVER "Two Pointers" alone.
+
+═══ FEW-SHOT EXAMPLES ═══
+
+Problem: "Given head of a linked list, determine if it has a cycle."
+→ {"patterns": ["Fast & Slow Pointers"], "time_complexity": "O(N)", "space_complexity": "O(1)"}
+
+Problem: "Given a sorted array and a target, return indices of two numbers that add up to target."
+→ {"patterns": ["Two Pointers"], "time_complexity": "O(N)", "space_complexity": "O(1)"}
+
+Problem: "Given an array nums and integer target, return indices of the two numbers that add up to target."
+→ {"patterns": ["Hash Map"], "time_complexity": "O(N)", "space_complexity": "O(N)"}
+
+Problem: "Return the maximum width of a binary tree."
+→ {"patterns": ["BFS"], "time_complexity": "O(N)", "space_complexity": "O(N)"}
+
+Problem: "Find minimum number of coins to make amount."
+→ {"patterns": ["Dynamic Programming"], "time_complexity": "O(N*amount)", "space_complexity": "O(amount)"}
+
+Problem: "Given prerequisites, determine if you can finish all courses."
+→ {"patterns": ["Topological Sort", "BFS"], "time_complexity": "O(V+E)", "space_complexity": "O(V+E)"}
+
+Problem: "Find total number of subarrays whose sum equals k."
+→ {"patterns": ["Prefix Sum", "Hash Map"], "time_complexity": "O(N)", "space_complexity": "O(N)"}
+
+═══ OUTPUT FORMAT (strict JSON, no extra text) ═══
+{
+  "patterns": ["Pattern Name 1"],
+  "time_complexity": "O(...)",
+  "space_complexity": "O(...)"
+}
+Pattern names MUST be exact matches from the provided list. Maximum 3 patterns."""
+
+
 def detect_patterns_with_llm(problem_text: str):
-    # Extract just the descriptions and use cases to keep the prompt focused
+    """Detect algorithm patterns using llama-3.3-70b-versatile on Groq."""
+    
+    # Build the pattern reference list for the user message
     pattern_context = {
         name: {
             "description": info["description"],
@@ -21,73 +90,62 @@ def detect_patterns_with_llm(problem_text: str):
         }
         for name, info in TEMPLATES.items()
     }
-    
-    prompt = f"""
-    You are an expert algorithm problem classifier. 
-    Read the following algorithm problem description and classify it into exactly 1, 2, or 3 of the following patterns based on their descriptions and use cases:
-    {json.dumps(pattern_context, indent=2)}
-    
-    Return the result strictly as a JSON object with the following structure:
-    {{
-        "patterns": ["Pattern Name 1"],
-        "time_complexity": "O(N)",
-        "space_complexity": "O(1)"
-    }}
-    The "patterns" array must contain ONLY the exact pattern names from the keys of the JSON object above (max 3).
-    Do not include any other text, reasoning, or markdown formatting.
-    
-    Problem description:
-    {problem_text}
-    """
-    
+
+    user_message = f"""Classify the following problem using ONLY patterns from this list:
+{json.dumps(list(pattern_context.keys()), indent=2)}
+
+Pattern descriptions for reference:
+{json.dumps(pattern_context, indent=2)}
+
+Problem to classify:
+\"\"\"{problem_text}\"\"\"
+
+Respond with ONLY the JSON object. No explanation."""
+
     try:
-        # Initialize Groq client
         api_key = os.environ.get("GROQ_API_KEY")
         if not api_key:
             print("Error: GROQ_API_KEY environment variable not set.")
             return {"patterns": []}
-            
+
         client = Groq(api_key=api_key)
-        
+
         chat_completion = client.chat.completions.create(
             messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user",   "content": user_message},
             ],
-            model="llama-3.1-8b-instant",
-            temperature=0,
-            max_tokens=1024,
+            model="llama-3.3-70b-versatile",   # Upgraded from llama-3.1-8b-instant
+            temperature=0,                      # Deterministic output
+            max_tokens=256,                     # Classification only needs a short response
             response_format={"type": "json_object"}
         )
-        
-        text = chat_completion.choices[0].message.content.strip()
-        
-        # Robust JSON extraction: find the first '{' and last '}'
-        start_idx = text.find('{')
-        end_idx = text.rfind('}')
-        
-        if start_idx != -1 and end_idx != -1:
-            json_str = text[start_idx:end_idx+1]
-            try:
-                llm_result = json.loads(json_str)
-            except json.JSONDecodeError:
-                print(f"Error decoding JSON from isolated string: {json_str}")
-                return {"patterns": []}
-        else:
-            print(f"Could not find JSON object in LLM response: {text}")
+
+        raw = chat_completion.choices[0].message.content.strip()
+
+        # Robust JSON extraction
+        start_idx = raw.find('{')
+        end_idx   = raw.rfind('}')
+        if start_idx == -1 or end_idx == -1:
+            print(f"No JSON object found in LLM response: {raw}")
             return {"patterns": []}
-        
-        # filter to only known patterns
-        patterns = llm_result.get("patterns", [])
-        valid_patterns = [p for p in patterns if p in PATTERN_NAMES]
-        
+
+        try:
+            llm_result = json.loads(raw[start_idx:end_idx + 1])
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error: {e} | Raw: {raw}")
+            return {"patterns": []}
+
+        # Validate: keep only known pattern names
+        raw_patterns   = llm_result.get("patterns", [])
+        valid_patterns = [p for p in raw_patterns if p in PATTERN_NAMES]
+
         return {
-            "patterns": valid_patterns[:3],
-            "time_complexity": llm_result.get("time_complexity", "Unknown"),
-            "space_complexity": llm_result.get("space_complexity", "Unknown")
+            "patterns":        valid_patterns[:3],
+            "time_complexity":  llm_result.get("time_complexity", "Unknown"),
+            "space_complexity": llm_result.get("space_complexity", "Unknown"),
         }
+
     except Exception as e:
         print(f"Error calling Groq API: {e}")
         return {"patterns": []}
